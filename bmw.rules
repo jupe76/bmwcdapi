@@ -1,0 +1,16 @@
+rule "bmw timed update"
+when
+    Time cron "0 0 0/2 ? * * *"
+then
+    val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py", 5000)
+    logInfo("bmwcdapi", rc)
+end
+
+rule "bmwcdapi forceupdate"
+when
+    Item bmwForceUpdate received update
+then
+    logInfo("bmwcdapi", "forced connectedDrive API call")
+    val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py", 5000)
+    logInfo("bmwcdapi", rc)
+end
