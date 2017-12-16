@@ -1,5 +1,5 @@
 # bmwcdapi.py 
-https://github.com/jupe76/
+https://github.com/jupe76/bmwcdapi
 
 Bmwcdapi.py is a python script to query various informations about your car from the BMW ConnectedDrive portal in conjunction with obenhab.
 
@@ -8,7 +8,7 @@ I'm using it for a BMW i3, but should work with other types as well.
 The techniques to access the ConnectedDrive portal were taken from https://github.com/sergejmueller/battery.ebiene.de
 
 ### Prerequisites
-You'll need the credentials (username / password) for a ConnectedDrive Login and the 17 chars long vehicle ident number (VIN) of your car.
+You'll need the credentials (username / password) for a ConnectedDrive login and the 17 chars long vehicle ident number (VIN) of your car.
 Furthermore you need a running openhab installation and python 3.x . The script has been tested with openhab2.
 
 ### Installation
