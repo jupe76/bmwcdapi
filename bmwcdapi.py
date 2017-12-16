@@ -82,7 +82,9 @@ class ConnectedDrive(object):
         self.ohPutValue('tokenExpires',self.tokenExpires)
 
     def ohPutValue(self, item, value):
-        requests.put('http://' + OPENHABIP + '/rest/items/'+ item +'/state', str(value))
+        rc =requests.put('http://' + OPENHABIP + '/rest/items/'+ item +'/state', str(value))
+        if(rc.status_code != 202):
+            print("error saving item " + item + " to openHAB")
 
     def ohGetValue(self, item):
         return requests.get('http://' + OPENHABIP + '/rest/items/'+ item)
@@ -96,8 +98,8 @@ class ConnectedDrive(object):
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
 
         map=r.json()['attributesMap']
-        #for k, v in map.items():
-        #    print(k, v)
+        for k, v in map.items():
+            print(k, v)
         if('door_lock_state' in map):
             self.ohPutValue("doorLockState",map['door_lock_state'])
         if('chargingLevelHv' in map):
@@ -112,6 +114,8 @@ class ConnectedDrive(object):
             self.ohPutValue("updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
         if('chargingSystemStatus' in map):
             self.ohPutValue("chargingSystemStatus", map['chargingSystemStatus'])
+        if('remaining_fuel' in map):
+            self.ohPutValue("remainingFuel", map['remaining_fuel'])
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         map=r.json()
