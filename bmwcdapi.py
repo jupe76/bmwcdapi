@@ -24,6 +24,7 @@ import requests
 import time
 import urllib.parse
 import re
+import argparse
 
 # ADJUST HERE if OH is not running on "localhost:8080"
 OPENHABIP = "localhost:8080"
@@ -37,6 +38,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 
 class ConnectedDrive(object):
 
     def __init__(self):
+        self.printval = False
         self.bmwUsername = self.ohGetValue("bmwUsername").json()["label"]
         self.bmwPassword = self.ohGetValue("bmwPassword").json()["label"]
         self.bmwVin = self.ohGetValue('bmwVin').json()["label"]
@@ -45,7 +47,7 @@ class ConnectedDrive(object):
 
         if((self.tokenExpires == 'NULL') or (int(time.time()) >= int(self.tokenExpires))):
             self.generateCredentials()
-    
+
     def generateCredentials(self):
         """
         If previous token has expired, create a new one.
@@ -98,8 +100,11 @@ class ConnectedDrive(object):
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
 
         map=r.json()['attributesMap']
-        #for k, v in map.items():
-        #    print(k, v)
+        #optional print all values
+        if(self.printval==True):
+            for k, v in map.items():
+                print(k, v)
+        
         if('door_lock_state' in map):
             self.ohPutValue("doorLockState",map['door_lock_state'])
         if('chargingLevelHv' in map):
@@ -119,14 +124,26 @@ class ConnectedDrive(object):
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         map=r.json()
-        #for k, v in map.items():
-        #    print(k, v)
+
+        #optional print all values
+        if(self.printval==True):
+            for k, v in map.items():
+                print(k, v)
+
         if('socMax' in map):
             self.ohPutValue("socMax",map['socMax'])
 
 def main():
     print("...running bmwcdapi.py")
     c = ConnectedDrive()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--printval', action='store_true', help='print all values that were received')
+    args = vars(parser.parse_args())
+
+    if(args["printval"]==True):
+        c.printval=True
+
     c.call()
 
 if __name__ == '__main__':
