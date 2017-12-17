@@ -98,8 +98,8 @@ class ConnectedDrive(object):
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
 
         map=r.json()['attributesMap']
-        for k, v in map.items():
-            print(k, v)
+        #for k, v in map.items():
+        #    print(k, v)
         if('door_lock_state' in map):
             self.ohPutValue("doorLockState",map['door_lock_state'])
         if('chargingLevelHv' in map):
