@@ -41,7 +41,7 @@ class ConnectedDrive(object):
         self.printval = False
         self.bmwUsername = self.ohGetValue("bmwUsername").json()["label"]
         self.bmwPassword = self.ohGetValue("bmwPassword").json()["label"]
-        self.bmwVin = self.ohGetValue('bmwVin').json()["label"]
+        self.bmwVin = self.ohGetValue('bmwVin').json()["label"].upper()
         self.accessToken = self.ohGetValue('accessToken').json()["state"]
         self.tokenExpires = self.ohGetValue('tokenExpires').json()["state"]
 
@@ -86,7 +86,7 @@ class ConnectedDrive(object):
     def ohPutValue(self, item, value):
         rc =requests.put('http://' + OPENHABIP + '/rest/items/'+ item +'/state', str(value))
         if(rc.status_code != 202):
-            print("error saving item " + item + " to openHAB")
+            print("Warning: couldn't save item " + item + " to openHAB")
 
     def ohGetValue(self, item):
         return requests.get('http://' + OPENHABIP + '/rest/items/'+ item)
@@ -99,7 +99,7 @@ class ConnectedDrive(object):
             }
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
 
-        map=r.json()['attributesMap']
+        map=r.json() ['attributesMap']
         #optional print all values
         if(self.printval==True):
             for k, v in map.items():
@@ -132,6 +132,26 @@ class ConnectedDrive(object):
 
         if('socMax' in map):
             self.ohPutValue("socMax",map['socMax'])
+
+        r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
+
+        if(self.printval==True):
+            for k, v in r.json().items():
+                print(k, v)
+
+        #lastTripList
+        myList=r.json() ["lastTripList"]
+        for listItem in myList:
+            if (listItem["name"] == "LASTTRIP_DELTA_KM"):
+                pass
+            elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
+                pass
+            elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
+                self.ohPutValue("lastTripAvgConsum", listItem["lastTrip"])
+            elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
+                self.ohPutValue("lastTripAvgRecup", listItem["lastTrip"])
+            elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
+                pass
 
 def main():
     print("...running bmwcdapi.py")
