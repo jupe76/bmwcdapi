@@ -25,6 +25,7 @@ import time
 import urllib.parse
 import re
 import argparse
+import xml.etree.ElementTree as etree  
 
 # ADJUST HERE if OH is not running on "localhost:8080"
 OPENHABIP = "localhost:8080"
@@ -178,12 +179,24 @@ class ConnectedDrive(object):
             }
         r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
         #tbd: error checking ...
-        print(str(r.status_code) + " " + r.text)
+        #print(str(r.status_code) + " " + r.text)
 
-        time.sleep(5)
-        r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
-        #tbd: error checking ...
-        print("status execstate " + str(r.status_code) + " " + r.text)
+        #<remoteServiceStatus>DELIVERED_TO_VEHICLE</remoteServiceStatus>
+        #<remoteServiceStatus>EXECUTED</remoteServiceStatus>
+        #wait max. (x* sleeptime) = 90 secs for execution 
+        execStatus=''
+        for x in range(9):
+            time.sleep(10)
+            r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
+            #print("status execstate " + str(r.status_code) + " " + r.text)
+            root = etree.fromstring(r.text)
+            remoteServiceStatus = root.find('remoteServiceStatus').text
+            #print(remoteServiceStatus)
+            if(remoteServiceStatus=='EXECUTED'):
+                execStatus= 'OK'
+                break
+        
+        return execStatus if execStatus != '' else 'TIMEOUT'
 
 
 def main():
@@ -204,11 +217,12 @@ def main():
     # dont query data and execute the service at the same time, takes too long
     if(args["service"]):
         # execute service
-        c.executeService(args["service"])
+        execStatus = c.executeService(args["service"])
     else:
         # else, query data
-        c.queryData()
+        execStatus = c.queryData()
 
+    return execStatus
 
 if __name__ == '__main__':
     main()
