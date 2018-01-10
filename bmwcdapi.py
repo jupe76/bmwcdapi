@@ -38,7 +38,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 
 class ConnectedDrive(object):
 
     def __init__(self):
-        self.printval = False
+        self.printall = False
         self.bmwUsername = self.ohGetValue("bmwUsername").json()["label"]
         self.bmwPassword = self.ohGetValue("bmwPassword").json()["label"]
         self.bmwVin = self.ohGetValue('bmwVin').json()["label"].upper()
@@ -91,7 +91,7 @@ class ConnectedDrive(object):
     def ohGetValue(self, item):
         return requests.get('http://' + OPENHABIP + '/rest/items/'+ item)
 
-    def call(self):
+    def queryData(self):
         headers = {
             "Content-Type": "application/json",
             "User-agent": USER_AGENT,
@@ -101,7 +101,7 @@ class ConnectedDrive(object):
 
         map=r.json() ['attributesMap']
         #optional print all values
-        if(self.printval==True):
+        if(self.printall==True):
             for k, v in map.items():
                 print(k, v)
         
@@ -126,7 +126,7 @@ class ConnectedDrive(object):
         map=r.json()
 
         #optional print all values
-        if(self.printval==True):
+        if(self.printall==True):
             for k, v in map.items():
                 print(k, v)
 
@@ -135,7 +135,7 @@ class ConnectedDrive(object):
 
         r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
 
-        if(self.printval==True):
+        if(self.printall==True):
             for k, v in r.json().items():
                 print(k, v)
 
@@ -153,18 +153,67 @@ class ConnectedDrive(object):
             elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
                 pass
 
+    def executeService(self,service):
+        # lock doors:     RDL
+        # unlock doors:   RDU
+        # light signal:   RLF
+        # sound horn:     RHB
+        # climate:     RCN
+
+        #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/state/execution
+        #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/history
+
+        # status of execution
+        # https://www.bmw-connecteddrive.de/api/vehicle/myinfo/v1
+
+        print("executing service " + service)
+
+        serviceCodes ={'climate' : 'RCN', 
+            'lock': 'RDL', 
+            'unlock' : 'RDU',
+            'light' : 'RLF',
+            'horn': 'RHB'}
+
+        command = serviceCodes[service]
+        headers = {
+            "Content-Type": "application/json",
+            "User-agent": USER_AGENT,
+            "Authorization" : "Bearer "+ self.accessToken
+            }
+        r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
+        #tbd: error checking ...
+        print(str(r.status_code) + " " + r.text)
+
+        time.sleep(5)
+        r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
+        #tbd: error checking ...
+        print("status execstate " + str(r.status_code) + " " + r.text)
+
+
+
 def main():
     print("...running bmwcdapi.py")
     c = ConnectedDrive()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--printval', action='store_true', help='print all values that were received')
+    parser.add_argument('-p', '--printall', action='store_true',
+        help='print all values that were received')
+    parser.add_argument('-e', '--execservice', dest='service', 
+        choices=['climate', 'lock', 'unlock', 'light', 'horn'], 
+        action='store', help='execute service like instant climate control')
     args = vars(parser.parse_args())
 
-    if(args["printval"]==True):
-        c.printval=True
+    if(args["printall"]==True):
+        c.printall=True
 
-    c.call()
+    # dont query data and execute the service at the same time, takes too long
+    if(args["service"]):
+        # execute service
+        c.executeService(args["service"])
+    else:
+        # else, query data
+        c.queryData()
+
 
 if __name__ == '__main__':
     main()
