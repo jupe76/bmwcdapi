@@ -160,11 +160,7 @@ class ConnectedDrive(object):
         # sound horn:     RHB
         # climate:     RCN
 
-        #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/state/execution
         #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/history
-
-        # status of execution
-        # https://www.bmw-connecteddrive.de/api/vehicle/myinfo/v1
 
         print("executing service " + service)
 
@@ -188,7 +184,6 @@ class ConnectedDrive(object):
         r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
         #tbd: error checking ...
         print("status execstate " + str(r.status_code) + " " + r.text)
-
 
 
 def main():
