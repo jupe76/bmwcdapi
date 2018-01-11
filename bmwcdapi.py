@@ -101,66 +101,68 @@ class ConnectedDrive(object):
 
         execStatusCode = 0 #ok
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
-        if (r.status_code!= 200):
+        if (r.status_code== 200):
+            map=r.json() ['attributesMap']
+            #optional print all values
+            if(self.printall==True):
+                for k, v in map.items():
+                    print(k, v)
+            
+            if('door_lock_state' in map):
+                self.ohPutValue("doorLockState",map['door_lock_state'])
+            if('chargingLevelHv' in map):
+                self.ohPutValue("chargingLevelHv",map['chargingLevelHv'])
+            if('beRemainingRangeElectric' in map):
+                self.ohPutValue("beRemainingRangeElectric",map["beRemainingRangeElectric"])
+            if('mileage' in map):
+                self.ohPutValue("mileage",map["mileage"])
+            if('beRemainingRangeFuel' in map):
+                self.ohPutValue("beRemainingRangeFuel",map["beRemainingRangeFuel"])
+            if('updateTime_converted_date' in map):
+                self.ohPutValue("updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
+            if('chargingSystemStatus' in map):
+                self.ohPutValue("chargingSystemStatus", map['chargingSystemStatus'])
+            if('remaining_fuel' in map):
+                self.ohPutValue("remainingFuel", map['remaining_fuel'])
+        else :
             execStatusCode = 70 #errno ECOMM, Communication error on send
 
-        map=r.json() ['attributesMap']
-        #optional print all values
-        if(self.printall==True):
-            for k, v in map.items():
-                print(k, v)
-        
-        if('door_lock_state' in map):
-            self.ohPutValue("doorLockState",map['door_lock_state'])
-        if('chargingLevelHv' in map):
-            self.ohPutValue("chargingLevelHv",map['chargingLevelHv'])
-        if('beRemainingRangeElectric' in map):
-            self.ohPutValue("beRemainingRangeElectric",map["beRemainingRangeElectric"])
-        if('mileage' in map):
-            self.ohPutValue("mileage",map["mileage"])
-        if('beRemainingRangeFuel' in map):
-            self.ohPutValue("beRemainingRangeFuel",map["beRemainingRangeFuel"])
-        if('updateTime_converted_date' in map):
-            self.ohPutValue("updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
-        if('chargingSystemStatus' in map):
-            self.ohPutValue("chargingSystemStatus", map['chargingSystemStatus'])
-        if('remaining_fuel' in map):
-            self.ohPutValue("remainingFuel", map['remaining_fuel'])
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
-        if (r.status_code!= 200):
+        if (r.status_code== 200):
+            map=r.json()
+
+            #optional print all values
+            if(self.printall==True):
+                for k, v in map.items():
+                    print(k, v)
+
+            if('socMax' in map):
+                self.ohPutValue("socMax",map['socMax'])
+        else:
             execStatusCode = 70 #errno ECOMM, Communication error on send
-        map=r.json()
-
-        #optional print all values
-        if(self.printall==True):
-            for k, v in map.items():
-                print(k, v)
-
-        if('socMax' in map):
-            self.ohPutValue("socMax",map['socMax'])
 
         r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
-        if (r.status_code!= 200):
-            execStatusCode = 70 #errno ECOMM, Communication error on send
+        if (r.status_code== 200):
+            if(self.printall==True):
+                for k, v in r.json().items():
+                    print(k, v)
 
-        if(self.printall==True):
-            for k, v in r.json().items():
-                print(k, v)
+            #lastTripList
+            myList=r.json() ["lastTripList"]
+            for listItem in myList:
+                if (listItem["name"] == "LASTTRIP_DELTA_KM"):
+                    pass
+                elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
+                    pass
+                elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
+                    self.ohPutValue("lastTripAvgConsum", listItem["lastTrip"])
+                elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
+                    self.ohPutValue("lastTripAvgRecup", listItem["lastTrip"])
+                elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
+                    pass
+        else: execStatusCode = 70 #errno ECOMM, Communication error on send
 
-        #lastTripList
-        myList=r.json() ["lastTripList"]
-        for listItem in myList:
-            if (listItem["name"] == "LASTTRIP_DELTA_KM"):
-                pass
-            elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
-                pass
-            elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
-                self.ohPutValue("lastTripAvgConsum", listItem["lastTrip"])
-            elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
-                self.ohPutValue("lastTripAvgRecup", listItem["lastTrip"])
-            elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
-                pass
 
         return execStatusCode
 
