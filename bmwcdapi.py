@@ -98,7 +98,11 @@ class ConnectedDrive(object):
             "User-agent": USER_AGENT,
             "Authorization" : "Bearer "+ self.accessToken
             }
+
+        execStatusCode = 0 #ok
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
+        if (r.status_code!= 200):
+            execStatusCode = 70 #errno ECOMM, Communication error on send
 
         map=r.json() ['attributesMap']
         #optional print all values
@@ -124,6 +128,8 @@ class ConnectedDrive(object):
             self.ohPutValue("remainingFuel", map['remaining_fuel'])
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
+        if (r.status_code!= 200):
+            execStatusCode = 70 #errno ECOMM, Communication error on send
         map=r.json()
 
         #optional print all values
@@ -135,6 +141,8 @@ class ConnectedDrive(object):
             self.ohPutValue("socMax",map['socMax'])
 
         r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
+        if (r.status_code!= 200):
+            execStatusCode = 70 #errno ECOMM, Communication error on send
 
         if(self.printall==True):
             for k, v in r.json().items():
@@ -154,6 +162,8 @@ class ConnectedDrive(object):
             elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
                 pass
 
+        return execStatusCode
+
     def executeService(self,service):
         # lock doors:     RDL
         # unlock doors:   RDU
@@ -162,6 +172,9 @@ class ConnectedDrive(object):
         # climate:     RCN
 
         #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/history
+
+        MAX_RETRIES = 9
+        INTERVAL = 10 #secs
 
         print("executing service " + service)
 
@@ -177,26 +190,32 @@ class ConnectedDrive(object):
             "User-agent": USER_AGENT,
             "Authorization" : "Bearer "+ self.accessToken
             }
+
+        execStatusCode=0
+
         r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
-        #tbd: error checking ...
-        #print(str(r.status_code) + " " + r.text)
+        if (r.status_code!= 200):
+            execStatusCode = 70 #errno ECOMM, Communication error on send
 
         #<remoteServiceStatus>DELIVERED_TO_VEHICLE</remoteServiceStatus>
         #<remoteServiceStatus>EXECUTED</remoteServiceStatus>
-        #wait max. (x* sleeptime) = 90 secs for execution 
-        execStatus=''
-        for x in range(9):
-            time.sleep(10)
-            r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
-            #print("status execstate " + str(r.status_code) + " " + r.text)
-            root = etree.fromstring(r.text)
-            remoteServiceStatus = root.find('remoteServiceStatus').text
-            #print(remoteServiceStatus)
-            if(remoteServiceStatus=='EXECUTED'):
-                execStatus= 'OK'
-                break
+        #wait max. ((MAX_RETRIES +1) * INTERVAL) = 90 secs for execution 
+        if(execStatusCode==0):
+            for i in range(MAX_RETRIES):
+                time.sleep(INTERVAL)
+                r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
+                #print("status execstate " + str(r.status_code) + " " + r.text)
+                root = etree.fromstring(r.text)
+                remoteServiceStatus = root.find('remoteServiceStatus').text
+                #print(remoteServiceStatus)
+                if(remoteServiceStatus=='EXECUTED'):
+                    execStatusCode= 0 #OK
+                    break
         
-        return execStatus if execStatus != '' else 'TIMEOUT'
+        if(remoteServiceStatus!='EXECUTED'):
+            execStatusCode = 62 #errno ETIME, Timer expired
+
+        return execStatusCode
 
 
 def main():
@@ -217,12 +236,13 @@ def main():
     # dont query data and execute the service at the same time, takes too long
     if(args["service"]):
         # execute service
-        execStatus = c.executeService(args["service"])
+        execStatusCode = c.executeService(args["service"])
     else:
         # else, query data
-        execStatus = c.queryData()
+        execStatusCode = c.queryData()
 
-    return execStatus
+    print("execStatusCode="+ str(execStatusCode) )
+    return execStatusCode
 
 if __name__ == '__main__':
     main()
