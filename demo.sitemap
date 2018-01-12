@@ -1,0 +1,22 @@
+sitemap demo label="Main Menu"
+{
+        Text label="BMW ConnectedDrive" {
+            Frame label="BMW i3" {
+                Switch item=Bmw_ForceUpdate mappings=[ON="Update now"]
+                Switch item=Bmw_LockDoors mappings=[ON="Lock"]
+                Switch item=Bmw_UnlockDoors mappings=[ON="Unlock"]
+                Switch item=Bmw_Climate mappings=[ON="Climate now"]
+                Text item=Bmw_chargingLevelHv
+                Text item=Bmw_beRemainingRangeElectric
+                Text item=Bmw_beRemainingRangeFuel
+                Text item=Bmw_mileage
+                Text item=Bmw_socMax
+                Text item=Bmw_updateTimeConverted
+                Text item=Bmw_doorLockState
+                Text item=Bmw_chargingSystemStatus
+                Text item=Bmw_remainingFuel
+                Text item=Bmw_lastTripAvgConsum
+                Text item=Bmw_lastTripAvgRecup
+            }
+        }
+}
