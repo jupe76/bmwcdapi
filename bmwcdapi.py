@@ -40,11 +40,11 @@ class ConnectedDrive(object):
 
     def __init__(self):
         self.printall = False
-        self.bmwUsername = self.ohGetValue("bmwUsername").json()["label"]
-        self.bmwPassword = self.ohGetValue("bmwPassword").json()["label"]
-        self.bmwVin = self.ohGetValue('bmwVin').json()["label"].upper()
-        self.accessToken = self.ohGetValue('accessToken').json()["state"]
-        self.tokenExpires = self.ohGetValue('tokenExpires').json()["state"]
+        self.bmwUsername = self.ohGetValue("Bmw_Username").json()["label"]
+        self.bmwPassword = self.ohGetValue("Bmw_Password").json()["label"]
+        self.bmwVin = self.ohGetValue('Bmw_Vin').json()["label"].upper()
+        self.accessToken = self.ohGetValue('Bmw_accessToken').json()["state"]
+        self.tokenExpires = self.ohGetValue('Bmw_tokenExpires').json()["state"]
 
         if((self.tokenExpires == 'NULL') or (int(time.time()) >= int(self.tokenExpires))):
             self.generateCredentials()
@@ -109,24 +109,23 @@ class ConnectedDrive(object):
                     print(k, v)
             
             if('door_lock_state' in map):
-                self.ohPutValue("doorLockState",map['door_lock_state'])
+                self.ohPutValue("Bmw_doorLockState",map['door_lock_state'])
             if('chargingLevelHv' in map):
-                self.ohPutValue("chargingLevelHv",map['chargingLevelHv'])
+                self.ohPutValue("Bmw_chargingLevelHv",map['chargingLevelHv'])
             if('beRemainingRangeElectric' in map):
-                self.ohPutValue("beRemainingRangeElectric",map["beRemainingRangeElectric"])
+                self.ohPutValue("Bmw_beRemainingRangeElectric",map["beRemainingRangeElectric"])
             if('mileage' in map):
-                self.ohPutValue("mileage",map["mileage"])
+                self.ohPutValue("Bmw_mileage",map["mileage"])
             if('beRemainingRangeFuel' in map):
-                self.ohPutValue("beRemainingRangeFuel",map["beRemainingRangeFuel"])
+                self.ohPutValue("Bmw_beRemainingRangeFuel",map["beRemainingRangeFuel"])
             if('updateTime_converted_date' in map):
-                self.ohPutValue("updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
+                self.ohPutValue("Bmw_updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
             if('chargingSystemStatus' in map):
-                self.ohPutValue("chargingSystemStatus", map['chargingSystemStatus'])
+                self.ohPutValue("Bmw_chargingSystemStatus", map['chargingSystemStatus'])
             if('remaining_fuel' in map):
-                self.ohPutValue("remainingFuel", map['remaining_fuel'])
+                self.ohPutValue("Bmw_remainingFuel", map['remaining_fuel'])
         else :
             execStatusCode = 70 #errno ECOMM, Communication error on send
-
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         if (r.status_code== 200):
@@ -138,7 +137,7 @@ class ConnectedDrive(object):
                     print(k, v)
 
             if('socMax' in map):
-                self.ohPutValue("socMax",map['socMax'])
+                self.ohPutValue("Bmw_socMax",map['socMax'])
         else:
             execStatusCode = 70 #errno ECOMM, Communication error on send
 
@@ -156,13 +155,12 @@ class ConnectedDrive(object):
                 elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
                     pass
                 elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
-                    self.ohPutValue("lastTripAvgConsum", listItem["lastTrip"])
+                    self.ohPutValue("Bmw_lastTripAvgConsum", listItem["lastTrip"])
                 elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
-                    self.ohPutValue("lastTripAvgRecup", listItem["lastTrip"])
+                    self.ohPutValue("Bmw_lastTripAvgRecup", listItem["lastTrip"])
                 elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
                     pass
         else: execStatusCode = 70 #errno ECOMM, Communication error on send
-
 
         return execStatusCode
 
@@ -180,7 +178,8 @@ class ConnectedDrive(object):
 
         print("executing service " + service)
 
-        serviceCodes ={'climate' : 'RCN', 
+        serviceCodes ={
+            'climate' : 'RCN', 
             'lock': 'RDL', 
             'unlock' : 'RDU',
             'light' : 'RLF',
