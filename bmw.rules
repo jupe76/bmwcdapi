@@ -1,16 +1,26 @@
 rule "bmw timed update"
 when
-    Time cron "0 0 0/2 ? * * *"
+    Time cron "0 0/30 * * * ?" //every 30 min
 then
+    logInfo("bmwcdapi", "cron timed connectedDrive API call")
     val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py", 5000)
     logInfo("bmwcdapi", rc)
 end
 
 rule "bmwcdapi forceupdate"
 when
-    Item bmwForceUpdate received update
+    Item Bmw_ForceUpdate received update
 then
     logInfo("bmwcdapi", "forced connectedDrive API call")
     val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py", 5000)
+    logInfo("bmwcdapi", rc)
+end
+
+rule "bmw climate"
+when
+    Item Bmw_Climate received update
+then
+    logInfo("bmwcdapi", "climate")
+    val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py -e climate", 120000)
     logInfo("bmwcdapi", rc)
 end
