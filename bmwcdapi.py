@@ -192,7 +192,9 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
+        #initalize vars
         execStatusCode=0
+        remoteServiceStatus=""
 
         r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
         if (r.status_code!= 200):
