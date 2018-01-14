@@ -52,8 +52,8 @@ With the switch bmwForceUpdate you could initiate an immediate update.
 ### Commandline parameters
 If bmwcdapi.py is called without parameters, the current values will be queried from ConnectedDrive and propagated to openHAB.
 
-| parameter long | parameter short | Description                              |
-| -------------- | ----------------|------------------------------------------|
-|--help          | -h              | show commandline help                    |
-|--printall      | -p              | print all values, usefull for debuging or just for exploring|
-|--execservice   | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
+| parameter long         | parameter short | Description                                                 |
+| ---------------------- | ----------------|-------------------------------------------------------------|
+|--help                  | -h              | show commandline help                                       |
+|--printall              | -p              | print all values, usefull for debuging or just for exploring|
+|--execservice <service> | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
