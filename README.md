@@ -21,9 +21,39 @@ If your script dir is not /etc/openhab2/scripts than you need to edit bmw.rules.
 Copy bmwcdapi.py to the openhab script dir. If the script is running on another computer than your openhab installation, than you need to adjust OPENHABIP.
 
 Edit your sitemap to visualize the items.
-The script is called every 2 hours to update the values. You can adjust the timespan in bmw.rules (be nice to the ConnectedDrive portal and don't hammer the server)
+The script is called every 30 min to update the values. You can adjust the timespan in bmw.rules (be nice to the ConnectedDrive portal and don't hammer the server)
 With the switch bmwForceUpdate you could initiate an immediate update.
 
-### Roadmap
-This is the first version of the script, it can only read values and has no support to initiate actions as to switch on heating or cooling.
-Maybe I'll try to add this features later.
+### Supported Items
+
+| OH-Item                       | Type   | Description                        |
+| ----------------------------- | ------ |------------------------------------|
+|`Bmw_Username`                 | String | BMW ConnectedDrive username        |
+|`Bmw_Password`                 | String | BMW ConnectedDrive password        |
+|`Bmw_Vin`                      | String | 17 chars long VIN of the car       |
+|`Bmw_Climate`                  | Switch | Switch to call the service to climate the car |
+|`Bmw_LockDoors`                | Switch | Switch to lock the car             |
+|`Bmw_UnlockDoors`              | Switch | Switch to unlock the car           |
+|`Bmw_ForceUpdate`              | Switch | switch to update the values immediately|
+|`Bmw_accessToken`              | String | access token                       |
+|`Bmw_tokenExpires`             | String | timestamp, wenn the access token expires|
+|`Bmw_doorLockState`            | Switch | state of the door locks            |
+|`Bmw_socMax`                   | Number | maximum "state of charge" in kWh   |
+|`Bmw_chargingLevelHv`          | Number | charging level in percent          |
+|`Bmw_beRemainingRangeElectric` | Number | remaining electric range in km     |
+|`Bmw_beRemainingRangeFuel`     | Number | remaining fuel range in km         |
+|`Bmw_mileage`                  | Number | mileage                            |
+|`Bmw_chargingSystemStatus`     | Switch | charging state                     |
+|`Bmw_updateTimeConverted`      | Switch | last status update from the car    |
+|`Bmw_remainingFuel`            | Number | remaining fuel in l                |
+|`Bmw_lastTripAvgConsum`        | Number | average consum of last trip in kWh |
+|`Bmw_lastTripAvgRecup`         | Number | average recuperation of last trip in kWh| 
+
+### Commandline parameters
+If bmwcdapi.py is called without parameters, the current values will be queried from ConnectedDrive and propagated to openHAB.
+
+| parameter long | parameter short | Description                              |
+| -------------- | ----------------|------------------------------------------|
+|--help          | -h              | show commandline help                    |
+|--printall      | -p              | print all values, usefull for debuging or just for exploring|
+|--execservice   | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
