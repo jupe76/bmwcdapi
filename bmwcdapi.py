@@ -48,6 +48,8 @@ class ConnectedDrive(object):
 
         if((self.tokenExpires == 'NULL') or (int(time.time()) >= int(self.tokenExpires))):
             self.generateCredentials()
+        else:
+            self.authenticated = True
 
     def generateCredentials(self):
         """
@@ -70,19 +72,25 @@ class ConnectedDrive(object):
 
         data = urllib.parse.urlencode(values)
         r = requests.post(AUTH_API,  data=data, headers=headers,allow_redirects=False)
-        #statuscode will be 302
-        #print(r.status_code)
+        #r.status_code will be 302
 
+        # https://www.bmw-connecteddrive.com/app/default/static/external-dispatch.html?error=access_denied
         myPayLoad=r.headers['Location']
-        m = re.match(".*access_token=([\w\d]+).*token_type=(\w+).*expires_in=(\d+).*", myPayLoad )
-        
-        tokenType=(m.group(2))
+        if("error=access_denied" in myPayLoad):
+            self.authenticated = False
+        else:
+            m = re.match(".*access_token=([\w\d]+).*token_type=(\w+).*expires_in=(\d+).*", myPayLoad )
+            
+            tokenType=(m.group(2))
 
-        self.accessToken=(m.group(1))
-        self.ohPutValue('Bmw_accessToken',self.accessToken)
+            self.accessToken=(m.group(1))
+            self.ohPutValue('Bmw_accessToken',self.accessToken)
 
-        self.tokenExpires=int(time.time()) + int(m.group(3))
-        self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
+            self.tokenExpires=int(time.time()) + int(m.group(3))
+            self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
+
+            self.authenticated = True
+        return
 
     def ohPutValue(self, item, value):
         rc =requests.put('http://' + OPENHABIP + '/rest/items/'+ item +'/state', str(value))
@@ -169,7 +177,7 @@ class ConnectedDrive(object):
         # unlock doors:   RDU
         # light signal:   RLF
         # sound horn:     RHB
-        # climate:     RCN
+        # climate:        RCN
 
         #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/history
 
@@ -214,7 +222,7 @@ class ConnectedDrive(object):
                 if(remoteServiceStatus=='EXECUTED'):
                     execStatusCode= 0 #OK
                     break
-        
+
         if(remoteServiceStatus!='EXECUTED'):
             execStatusCode = 62 #errno ETIME, Timer expired
 
@@ -237,14 +245,18 @@ def main():
         c.printall=True
 
     # dont query data and execute the service at the same time, takes too long
-    if(args["service"]):
+    if(args["service"] and c.authenticated == True):
         # execute service
         execStatusCode = c.executeService(args["service"])
-    else:
+    elif(c.authenticated == True):
         # else, query data
         execStatusCode = c.queryData()
-
-    print("execStatusCode="+ str(execStatusCode) )
+    elif(c.authenticated == False):
+        print("could not authenticate, user or password wrong?")
+        #errno EACCES 13 Permission denied
+        execStatusCode = 13
+        
+    #print("execStatusCode="+ str(execStatusCode) )
     return execStatusCode
 
 if __name__ == '__main__':
