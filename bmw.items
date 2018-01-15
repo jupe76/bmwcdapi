@@ -1,0 +1,26 @@
+Group gBMW "BMW"       (All)
+//ADJUST these items to hold your BMW ConnectedDrive
+//credentials and the 17 chars long vehicle ident number (VIN) 
+String Bmw_Username "your bmw cd user here"
+String Bmw_Password "your bmw cd password here"
+String Bmw_Vin "WBY... your VIN here"
+
+Switch Bmw_Climate "Climate"
+Switch Bmw_LockDoors "Lock"
+Switch Bmw_UnlockDoors "Unlock"
+Switch Bmw_ForceUpdate "ConnectedDrive"
+String Bmw_accessToken "AccessToken [%s]"
+String Bmw_tokenExpires "TokenExpires [%s]"
+
+//These items are to visualize the queried data 
+String Bmw_doorLockState    "BMW [%s]"  (gBMW)
+Number Bmw_socMax "max. StateOfCharge [%s kWh]"  (gBMW)
+Number Bmw_chargingLevelHv  "Ladezustand [%d %%]"    (gBMW)
+Number Bmw_beRemainingRangeElectric   "elektr. Reichweite [%d km]"   (gBMW)
+Number Bmw_beRemainingRangeFuel "Benzin Reichweite [%d km]"  (gBMW)
+Number Bmw_mileage "km-Stand [%d]"   (gBMW)
+String Bmw_chargingSystemStatus   "Ladestatus [%s]"  (gBMW)
+String Bmw_updateTimeConverted "Fz-Aktualisierung [%s]"  (gBMW)
+Number Bmw_remainingFuel "Tankinhalt [%d l]"     (gBMW)
+Number Bmw_lastTripAvgConsum "Energieverbrauch [%s kWh/100km]"   (gBMW)
+Number Bmw_lastTripAvgRecup "Rekuperation [%s kWh/100km]"    (gBMW)
