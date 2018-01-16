@@ -45,15 +45,15 @@ and the appropriate service, i.e. bmwcdapi.py --execservice climate
 |`Bmw_UnlockDoors`              | Switch | Switch to unlock the car           |
 |`Bmw_ForceUpdate`              | Switch | switch to update the values immediately|
 |`Bmw_accessToken`              | String | access token                       |
-|`Bmw_tokenExpires`             | String | timestamp, wenn the access token expires|
-|`Bmw_doorLockState`            | Switch | state of the door locks            |
+|`Bmw_tokenExpires`             | String | Timestamp at which the accesstoken becomes invalid |
+|`Bmw_doorLockState`            | String | state of the door locks            |
 |`Bmw_socMax`                   | Number | maximum "state of charge" in kWh   |
 |`Bmw_chargingLevelHv`          | Number | charging level in percent          |
 |`Bmw_beRemainingRangeElectric` | Number | remaining electric range in km     |
 |`Bmw_beRemainingRangeFuel`     | Number | remaining fuel range in km         |
 |`Bmw_mileage`                  | Number | mileage                            |
-|`Bmw_chargingSystemStatus`     | Switch | charging state                     |
-|`Bmw_updateTimeConverted`      | Switch | last status update from the car    |
+|`Bmw_chargingSystemStatus`     | String | charging state                     |
+|`Bmw_updateTimeConverted`      | String | last status update from the car    |
 |`Bmw_remainingFuel`            | Number | remaining fuel in l                |
 |`Bmw_lastTripAvgConsum`        | Number | average consum of last trip in kWh |
 |`Bmw_lastTripAvgRecup`         | Number | average recuperation of last trip in kWh| 
