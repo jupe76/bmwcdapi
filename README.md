@@ -66,7 +66,7 @@ If bmwcdapi.py is called without parameters, the current values will be queried 
 |--help                  | -h              | show commandline help                                       |
 |--printall              | -p              | print all values, usefull for debuging or just for exploring|
 |--execservice <service> | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
-|--sendmesg <header> <message>| -s              | send message to car             | 
+|--sendmesg <subject> <message>| -s              | send a message to the car             | 
 
 ### Return codes
 
