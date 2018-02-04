@@ -66,3 +66,13 @@ If bmwcdapi.py is called without parameters, the current values will be queried 
 |--help                  | -h              | show commandline help                                       |
 |--printall              | -p              | print all values, usefull for debuging or just for exploring|
 |--execservice <service> | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
+|--sendmesg <header> <message>| -s              | send message to car             | 
+
+### Return codes
+
+| return code  | Description                        |
+| ------------ | -----------------------------------|
+|`0`           |OK                                  |
+|`13`          | EACCES Permission denied           |
+|`62`          | ETIME, Timeout                     |
+|`70`          | ECOMM, Communication error         |
