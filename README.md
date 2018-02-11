@@ -79,5 +79,5 @@ If bmwcdapi.py is called without parameters, the current values will be queried 
 
 ### Screenshot
 
-![screenshot of the OH basic gui](https://github.com/jupe76/bmwcdapi/bmwcd_basicgui.jpg "Screenshot of the OH basic gui")
+![screenshot of the OH basic gui](https://raw.githubusercontent.com/jupe76/bmwcdapi/master/img/bmwcd_basicgui.jpg "Screenshot of the OH basic gui")
 
