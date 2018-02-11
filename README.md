@@ -76,3 +76,8 @@ If bmwcdapi.py is called without parameters, the current values will be queried 
 |`13`          | EACCES Permission denied           |
 |`62`          | ETIME, Timeout                     |
 |`70`          | ECOMM, Communication error         |
+
+### Screenshot
+
+![screenshot of the OH basic gui](https://github.com/jupe76/bmwcdapi/bmwcd_basicgui.jpg "Screenshot of the OH basic gui")
+
