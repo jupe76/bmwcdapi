@@ -1,26 +1,26 @@
 Group gBMW "BMW"       (All)
 //ADJUST these items to hold your BMW ConnectedDrive
-//credentials and the 17 chars long vehicle ident number (VIN) 
+//credentials and the 17 chars long vehicle ident number (VIN)
 String Bmw_Username "your bmw cd user here"
 String Bmw_Password "your bmw cd password here"
 String Bmw_Vin "WBY... your VIN here"
 
-Switch Bmw_Climate "Climate"
-Switch Bmw_LockDoors "Lock"
-Switch Bmw_UnlockDoors "Unlock"
-Switch Bmw_ForceUpdate "ConnectedDrive"
+Switch Bmw_Climate "Climate" <ac_unit>
+Switch Bmw_LockDoors "Lock" <lock>
+Switch Bmw_UnlockDoors "Unlock" <lock_open>
+Switch Bmw_ForceUpdate "ConnectedDrive" <update>
 String Bmw_accessToken "AccessToken [%s]"
 String Bmw_tokenExpires "TokenExpires [%s]"
 
 //These items are to visualize the queried data 
-String Bmw_doorLockState    "BMW [%s]"  (gBMW)
-Number Bmw_socMax "max. StateOfCharge [%s kWh]"  (gBMW)
-Number Bmw_chargingLevelHv  "Ladezustand [%d %%]"    (gBMW)
-Number Bmw_beRemainingRangeElectric   "elektr. Reichweite [%d km]"   (gBMW)
-Number Bmw_beRemainingRangeFuel "Benzin Reichweite [%d km]"  (gBMW)
-Number Bmw_mileage "km-Stand [%d]"   (gBMW)
-String Bmw_chargingSystemStatus   "Ladestatus [%s]"  (gBMW)
-String Bmw_updateTimeConverted "Fz-Aktualisierung [%s]"  (gBMW)
-Number Bmw_remainingFuel "Tankinhalt [%d l]"     (gBMW)
-Number Bmw_lastTripAvgConsum "Energieverbrauch [%s kWh/100km]"   (gBMW)
-Number Bmw_lastTripAvgRecup "Rekuperation [%s kWh/100km]"    (gBMW)
+String Bmw_doorLockState    "BMW [%s]"  <lockstate> (gBMW)
+Number Bmw_socMax "max. StateOfCharge [%s kWh]"  <chart> (gBMW)
+Number Bmw_chargingLevelHv  "Ladezustand [%d %%]"   <power> (gBMW)
+Number Bmw_beRemainingRangeElectric   "elektr. Reichweite [%d km]" <ev_station>   (gBMW)
+Number Bmw_beRemainingRangeFuel "Benzin Reichweite [%d km]"  <gas_station> (gBMW)
+Number Bmw_mileage "km-Stand [%d]" <odometer>  (gBMW)
+String Bmw_chargingSystemStatus   "Ladestatus [%s]"  <battery_unknown>   (gBMW)
+String Bmw_updateTimeConverted "Fz-Aktualisierung [%s]"  <hourglass_empty>  (gBMW)
+Number Bmw_remainingFuel "Tankinhalt [%d l]" <opacity>  (gBMW)
+Number Bmw_lastTripAvgConsum "Energieverbrauch [%s kWh/100km]"  <play>  (gBMW)
+Number Bmw_lastTripAvgRecup "Rekuperation [%s kWh/100km]"  <replay>  (gBMW)
