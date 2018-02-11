@@ -18,7 +18,7 @@ end
 
 rule "bmw climate"
 when
-    Item Bmw_Climate received update
+    Item Bmw_Climate received command ON
 then
     logInfo("bmwcdapi", "climate")
     val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py -e climate", 120000)
@@ -27,7 +27,7 @@ end
 
 rule "bmw lockDoors"
 when
-    Item Bmw_LockDoors received update
+    Item Bmw_LockDoors received command ON
 then
     logInfo("bmwcdapi", "lock doors")
     val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py -e lock", 120000)
@@ -36,7 +36,7 @@ end
 
 rule "bmw unlockDoors"
 when
-    Item Bmw_UnlockDoors received update
+    Item Bmw_UnlockDoors received command ON
 then
     logInfo("bmwcdapi", "unlock doors")
     val rc =  executeCommandLine("/usr/bin/python3 /etc/openhab2/scripts/bmwcdapi.py -e unlock", 120000)

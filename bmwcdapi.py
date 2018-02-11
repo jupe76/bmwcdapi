@@ -181,6 +181,7 @@ class ConnectedDrive(object):
 
         #https://www.bmw-connecteddrive.de/api/vehicle/remoteservices/v1/WBYxxxxxxxx123456/history
 
+        # query execution status retries and interval time
         MAX_RETRIES = 9
         INTERVAL = 10 #secs
 
@@ -228,6 +229,34 @@ class ConnectedDrive(object):
 
         return execStatusCode
 
+    def sendMessage(self,message):
+        # Endpoint: https://www.bmw-connecteddrive.de/api/vehicle/myinfo/v1
+        # Type: POST
+        # Body:
+        # {
+        #   "vins": ["<VINNUMBER>"],
+        #   "message": "CONTENT",
+        #   "subject": "SUBJECT"
+        # }
+
+        headers = {
+            "Content-Type": "application/json",
+            "User-agent": USER_AGENT,
+            "Authorization" : "Bearer "+ self.accessToken
+            }
+
+        #initalize vars
+        execStatusCode=0
+
+        values = {'vins' : [self.bmwVin],
+                    'message' : message[1],
+                    'subject' : message[0]
+                    }
+        r = requests.post(VEHICLE_API+'/myinfo/v1', data=json.dumps(values), headers=headers,allow_redirects=True)
+        if (r.status_code!= 200):
+            execStatusCode = 70 #errno ECOMM, Communication error on send
+
+        return execStatusCode
 
 def main():
     print("...running bmwcdapi.py")
@@ -239,6 +268,10 @@ def main():
     parser.add_argument('-e', '--execservice', dest='service', 
         choices=['climate', 'lock', 'unlock', 'light', 'horn'], 
         action='store', help='execute service like instant climate control')
+    parser.add_argument('-s', '--sendmesg', nargs=2, dest='message',
+        metavar=('subject','message'),
+        action='store', help='send a message to the car')
+
     args = vars(parser.parse_args())
 
     if(args["printall"]==True):
@@ -248,6 +281,9 @@ def main():
     if(args["service"] and c.authenticated == True):
         # execute service
         execStatusCode = c.executeService(args["service"])
+    elif(args["message"] and c.authenticated == True):
+        # snd message
+        execStatusCode = c.sendMessage(args["message"])
     elif(c.authenticated == True):
         # else, query data
         execStatusCode = c.queryData()

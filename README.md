@@ -65,4 +65,19 @@ If bmwcdapi.py is called without parameters, the current values will be queried 
 | ---------------------- | ----------------|-------------------------------------------------------------|
 |--help                  | -h              | show commandline help                                       |
 |--printall              | -p              | print all values, usefull for debuging or just for exploring|
-|--execservice <service> | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
+|--execservice \<service\> | -e              | execute service service may be one of <ul><li>climate,</li><li>lock,</li><li>unlock,</li><li>light,</li><li>horn|</li></ul>|
+|--sendmesg \<subject\> \<message\>| -s              | send a message to the car             | 
+
+### Return codes
+
+| return code  | Description                        |
+| ------------ | -----------------------------------|
+|`0`           |OK                                  |
+|`13`          | EACCES Permission denied           |
+|`62`          | ETIME, Timeout                     |
+|`70`          | ECOMM, Communication error         |
+
+### Screenshot
+
+![screenshot of the OH basic gui](https://raw.githubusercontent.com/jupe76/bmwcdapi/master/img/bmwcd_basicgui.jpg "Screenshot of the OH basic gui")
+
