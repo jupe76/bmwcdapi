@@ -132,6 +132,10 @@ class ConnectedDrive(object):
                 self.ohPutValue("Bmw_chargingSystemStatus", map['chargingSystemStatus'])
             if('remaining_fuel' in map):
                 self.ohPutValue("Bmw_remainingFuel", map['remaining_fuel'])
+            if('gps_lat' in map):
+                self.ohPutValue("Bmw_gpsLat", map['gps_lat'])
+            if('gps_lng' in map):
+                self.ohPutValue("Bmw_gpsLng", map['gps_lng'])
         else :
             execStatusCode = 70 #errno ECOMM, Communication error on send
 
