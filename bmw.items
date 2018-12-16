@@ -24,6 +24,7 @@ String Bmw_updateTimeConverted "Fz-Aktualisierung [%s]"  <hourglass_empty>  (gBM
 Number Bmw_remainingFuel "Tankinhalt [%d l]" <opacity>  (gBMW)
 Number Bmw_lastTripAvgConsum "Energieverbrauch [%s kWh/100km]"  <play>  (gBMW)
 Number Bmw_lastTripAvgRecup "Rekuperation [%s kWh/100km]"  <replay>  (gBMW)
-String Bmw_gpsLat "Standort GPS Latitude [%s °]" (gBMW)
-String Bmw_gpsLng "Standort GPS Longitude [%s °]" (gBMW)
+String Bmw_gpsLat "Standort GPS Latitude [%s °]" <gpslat> (gBMW)
+String Bmw_gpsLng "Standort GPS Longitude [%s °]" <gpslng> (gBMW)
+String Bmw_gpsLatLng "Standort GPS Lat.,Long. [%s °]"   <gpslng>    (gBMW)
 

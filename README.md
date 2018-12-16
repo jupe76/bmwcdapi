@@ -59,6 +59,7 @@ and the appropriate service, i.e. bmwcdapi.py --execservice climate
 |`Bmw_lastTripAvgRecup`         | Number | average recuperation of last trip in kWh| 
 |`Bmw_gpsLat`                   | String | GPS position latitude              | 
 |`Bmw_gpsLng`                   | String | GPS position longitude             |
+|`Bmw_gpsLatLng`                | String | GPS position latitude,longitude    |
 
 ### Commandline parameters
 If bmwcdapi.py is called without parameters, the current values will be queried from ConnectedDrive and propagated to openHAB.
