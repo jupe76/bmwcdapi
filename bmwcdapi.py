@@ -30,9 +30,17 @@ import xml.etree.ElementTree as etree
 # ADJUST HERE if OH is not running on "localhost:8080"
 OPENHABIP = "localhost:8080"
 
-# API Gateway
-AUTH_API = 'https://customer.bmwgroup.com/gcdm/oauth/authenticate'
-VEHICLE_API = 'https://www.bmw-connecteddrive.de/api/vehicle'
+#NORTH_AMERICA:
+#SERVER_URL = 'b2vapi.bmwgroup.us'
+#CHINA:
+#SERVER_URL = 'b2vapi.bmwgroup.cn:8592'
+#REST_OF_WORLD:
+SERVER_URL = 'b2vapi.bmwgroup.com'
+
+AUTH_API = 'https://' + SERVER_URL +'/gcdm/oauth/token'
+#BASE_URL = 'https://'  '/webapi/v1'
+
+VEHICLE_API = 'https://'+ SERVER_URL + '/api/vehicle'
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
 
@@ -56,40 +64,38 @@ class ConnectedDrive(object):
         If previous token has expired, create a new one.
         """
         headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "User-agent": USER_AGENT
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": "124",
+                "Connection": "Keep-Alive",
+                "Host": SERVER_URL,
+                "Accept-Encoding": "gzip",
+                "Authorization": "Basic blF2NkNxdHhKdVhXUDc0eGYzQ0p3VUVQOjF6REh4NnVuNGNEanli"
+                                 "TEVOTjNreWZ1bVgya0VZaWdXUGNRcGR2RFJwSUJrN3JPSg==",
+                "Credentials": "nQv6CqtxJuXWP74xf3CJwUEP:1zDHx6un4cDjybLENN3kyfumX2kEYigWPcQpdvDRpIBk7rOJ",
+                "User-Agent": "okhttp/2.60",
         }
 
-        values = {'username' : self.bmwUsername,
-            'password' : self.bmwPassword,
-            'client_id' : 'dbf0a542-ebd1-4ff0-a9a7-55172fbfce35',
-            'redirect_uri' : 'https://www.bmw-connecteddrive.com/app/default/static/external-dispatch.html',
-            'response_type' : 'token',
-            'scope' : 'authenticate_user fupo',
-            'state' : 'eyJtYXJrZXQiOiJkZSIsImxhbmd1YWdlIjoiZGUiLCJkZXN0aW5hdGlvbiI6ImxhbmRpbmdQYWdlIn0',
-            'locale' : 'DE-de'
+        values = {
+            'grant_type': 'password',
+            'scope': 'authenticate_user vehicle_data remote_services',
+            'username': self.bmwUsername,
+            'password': self.bmwPassword,
         }
 
         data = urllib.parse.urlencode(values)
-        r = requests.post(AUTH_API,  data=data, headers=headers,allow_redirects=False)
-        #r.status_code will be 302
+        url = AUTH_API.format(server=SERVER_URL)
+        r = requests.post(url, data=data, headers=headers,allow_redirects=False)
+        myPayLoad=r.json()
+        #if("error=access_denied" in myPayLoad):
+        #self.authenticated = False
 
-        # https://www.bmw-connecteddrive.com/app/default/static/external-dispatch.html?error=access_denied
-        myPayLoad=r.headers['Location']
-        if("error=access_denied" in myPayLoad):
-            self.authenticated = False
-        else:
-            m = re.match(".*access_token=([\w\d]+).*token_type=(\w+).*expires_in=(\d+).*", myPayLoad )
-            
-            tokenType=(m.group(2))
+        self.accessToken=myPayLoad['access_token']
+        self.ohPutValue('Bmw_accessToken',self.accessToken)
 
-            self.accessToken=(m.group(1))
-            self.ohPutValue('Bmw_accessToken',self.accessToken)
+        self.tokenExpires=myPayLoad['refresh_token']
+        self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
 
-            self.tokenExpires=int(time.time()) + int(m.group(3))
-            self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
-
-            self.authenticated = True
+        self.authenticated = True
         return
 
     def ohPutValue(self, item, value):
