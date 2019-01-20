@@ -22,6 +22,7 @@
 import json
 import requests
 import time
+import datetime
 import urllib.parse
 import re
 import argparse
@@ -54,7 +55,17 @@ class ConnectedDrive(object):
         self.accessToken = self.ohGetValue('Bmw_accessToken').json()["state"]
         self.tokenExpires = self.ohGetValue('Bmw_tokenExpires').json()["state"]
 
-        if((self.tokenExpires == 'NULL') or (int(time.time()) >= int(self.tokenExpires))):
+        #print('self.tokenExpires ' + self.tokenExpires)
+        try:
+            if (datetime.datetime.now() >= datetime.datetime.strptime(self.tokenExpires,"%Y-%m-%d %H:%M:%S.%f")):
+                newTokenNeeded = True
+            else:
+                newTokenNeeded = False
+        except:
+            self.tokenExpires = 'NULL'
+            newTokenNeeded = True
+
+        if((self.tokenExpires == 'NULL') or (newTokenNeeded == True)):
             self.generateCredentials()
         else:
             self.authenticated = True
@@ -62,7 +73,9 @@ class ConnectedDrive(object):
     def generateCredentials(self):
         """
         If previous token has expired, create a new one.
+        New method to get oauth token from bimmer_connected lib
         """
+
         headers = {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Content-Length": "124",
@@ -92,7 +105,8 @@ class ConnectedDrive(object):
         self.accessToken=myPayLoad['access_token']
         self.ohPutValue('Bmw_accessToken',self.accessToken)
 
-        self.tokenExpires=myPayLoad['refresh_token']
+        expirationSecs=myPayLoad['expires_in']
+        self.tokenExpires = datetime.datetime.now() + datetime.timedelta(seconds=expirationSecs)
         self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
 
         self.authenticated = True
