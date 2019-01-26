@@ -31,23 +31,32 @@ import xml.etree.ElementTree as etree
 # ADJUST HERE if OH is not running on "localhost:8080"
 OPENHABIP = "localhost:8080"
 
-#NORTH_AMERICA:
-#SERVER_URL = 'b2vapi.bmwgroup.us'
-#CHINA:
-#SERVER_URL = 'b2vapi.bmwgroup.cn:8592'
-#REST_OF_WORLD:
-SERVER_URL = 'b2vapi.bmwgroup.com'
-
-AUTH_API = 'https://' + SERVER_URL +'/gcdm/oauth/token'
-#BASE_URL = 'https://'  '/webapi/v1'
-
-VEHICLE_API = 'https://'+ SERVER_URL + '/api/vehicle'
-
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0"
 
 class ConnectedDrive(object):
 
     def __init__(self):
+        #REST_OF_WORLD: 'b2vapi.bmwgroup.com'
+        #NORTH_AMERICA:'b2vapi.bmwgroup.us'
+        #CHINA: 'b2vapi.bmwgroup.cn:8592'
+        servers = {'1': 'b2vapi.bmwgroup.com',
+                '2': 'b2vapi.bmwgroup.us',
+                '3': 'b2vapi.bmwgroup.cn:8592'}
+        try:
+            region = self.ohGetValue("Bmw_Region").json()["label"]
+        except:
+            #fallback if no region is defined
+            region = '1'
+
+        try:
+            self.serverUrl = servers[region]
+        except:
+            #fallback for nonexisting region 
+            self.serverUrl = servers['1']
+
+        self.authApi = 'https://' + self.serverUrl +'/gcdm/oauth/token'
+        self.vehicleApi = 'https://'+ self.serverUrl + '/api/vehicle'
+
         self.printall = False
         self.bmwUsername = self.ohGetValue("Bmw_Username").json()["label"]
         self.bmwPassword = self.ohGetValue("Bmw_Password").json()["label"]
@@ -80,7 +89,7 @@ class ConnectedDrive(object):
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Content-Length": "124",
                 "Connection": "Keep-Alive",
-                "Host": SERVER_URL,
+                "Host": self.serverUrl,
                 "Accept-Encoding": "gzip",
                 "Authorization": "Basic blF2NkNxdHhKdVhXUDc0eGYzQ0p3VUVQOjF6REh4NnVuNGNEanli"
                                  "TEVOTjNreWZ1bVgya0VZaWdXUGNRcGR2RFJwSUJrN3JPSg==",
@@ -96,7 +105,7 @@ class ConnectedDrive(object):
         }
 
         data = urllib.parse.urlencode(values)
-        url = AUTH_API.format(server=SERVER_URL)
+        url = self.authApi.format(server=self.serverUrl)
         r = requests.post(url, data=data, headers=headers,allow_redirects=False)
         if (r.status_code != 200):
             self.authenticated = False
@@ -119,7 +128,11 @@ class ConnectedDrive(object):
             print("Warning: couldn't save item " + item + " to openHAB")
 
     def ohGetValue(self, item):
-        return requests.get('http://' + OPENHABIP + '/rest/items/'+ item)
+        r = requests.get('http://' + OPENHABIP + '/rest/items/'+ item)
+        if(r.status_code != 200):
+            print("Status code ", r.status_code)
+            print("Warning: couldn't get item " + item + " from openHAB")
+        return r
 
     def queryData(self):
         headers = {
@@ -128,7 +141,7 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
-        r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
+        r = requests.get(self.vehicleApi+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
         if (r.status_code != 200):
             return 70 #errno ECOMM, Communication error on send
 
@@ -164,7 +177,7 @@ class ConnectedDrive(object):
             #maybe a combined value is more useful
             self.ohPutValue("Bmw_gpsLatLng", (map['gps_lat']+ "," + map['gps_lng']))
 
-        r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
+        r = requests.get(self.vehicleApi+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         if (r.status_code != 200):
             return 70 #errno ECOMM, Communication error on send
 
@@ -177,7 +190,7 @@ class ConnectedDrive(object):
         if('socMax' in map):
             self.ohPutValue("Bmw_socMax",map['socMax'])
 
-        r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
+        r = requests.get(self.vehicleApi+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         if (r.status_code != 200):
             return 70 #errno ECOMM, Communication error on send
         if(self.printall==True):
@@ -229,7 +242,7 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
-        r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
+        r = requests.post(self.vehicleApi+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
         if (r.status_code!= 200):
             return 70 #errno ECOMM, Communication error on send
 
@@ -238,7 +251,7 @@ class ConnectedDrive(object):
         #wait max. ((MAX_RETRIES +1) * INTERVAL) = 90 secs for execution 
         for i in range(MAX_RETRIES):
             time.sleep(INTERVAL)
-            r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
+            r = requests.get(self.vehicleApi+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
             #print("status execstate " + str(r.status_code) + " " + r.text)
             root = etree.fromstring(r.text)
             remoteServiceStatus = root.find('remoteServiceStatus').text
@@ -271,7 +284,7 @@ class ConnectedDrive(object):
                     'message' : message[1],
                     'subject' : message[0]
                     }
-        r = requests.post(VEHICLE_API+'/myinfo/v1', data=json.dumps(values), headers=headers,allow_redirects=True)
+        r = requests.post(self.vehicleApi+'/myinfo/v1', data=json.dumps(values), headers=headers,allow_redirects=True)
         if (r.status_code!= 200):
             return 70 #errno ECOMM, Communication error on send
 

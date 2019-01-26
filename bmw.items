@@ -4,6 +4,8 @@ Group gBMW "BMW"       (All)
 String Bmw_Username "your bmw cd user here"
 String Bmw_Password "your bmw cd password here"
 String Bmw_Vin "WBY... your VIN here"
+//Bmw_Region "1" = Rest of the World, "2" = North America, "3" =China
+String Bmw_Region "1"
 
 Switch Bmw_Climate "Climate" <ac_unit>
 Switch Bmw_LockDoors "Lock" <lock>

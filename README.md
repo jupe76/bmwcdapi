@@ -17,11 +17,11 @@ Furthermore you need a running openhab installation and python 3.x . The script 
 Copy bmw.rules and bmw.items in the according openhab dirs.
 
 Edit Bmw_Username, Bmw_Password and Bmw_Vin placed in bmw.items to hold your credentials and the VIN of your car.
+Edit Bmw_Region to set the region for ConnectedDrive access. 
 
-If your script dir is not /etc/openhab2/scripts than you need to edit bmw.rules.
+If your script dir is not /etc/openhab2/scripts then you need to edit bmw.rules.
 
-Copy bmwcdapi.py to the openhab script dir. If the script is running on another computer than your openhab installation, 
-then you need to adjust OPENHABIP.
+Copy bmwcdapi.py to the openhab script dir. If the script is running on another computer than your openhab installation, then you need to adjust OPENHABIP.
 If you're outside the EU you probably need to edit SERVER_URL.
 
 Edit your sitemap to visualize the items.
@@ -35,24 +35,34 @@ To execute services like to climate the car, call the bmwcd api.py with the comm
 and the appropriate service, i.e. bmwcdapi.py --execservice climate
 
 ### Supported Items
+#### Configuration
 
 | OH-Item                       | Type   | Description                        |
 | ----------------------------- | ------ |------------------------------------|
 |`Bmw_Username`                 | String | BMW ConnectedDrive username        |
 |`Bmw_Password`                 | String | BMW ConnectedDrive password        |
 |`Bmw_Vin`                      | String | 17 chars long VIN of the car       |
+|`Bmw_Region`                   | String | Region to use for ConnectedDrive access, 1 = EU and rest of the World, 2 = North America, 3 = China |
+
+#### Actions
+| OH-Item                       | Type   | Description                        |
+| ----------------------------- | ------ |------------------------------------|
 |`Bmw_Climate`                  | Switch | Switch to call the service to climate the car |
 |`Bmw_LockDoors`                | Switch | Switch to lock the car             |
 |`Bmw_UnlockDoors`              | Switch | Switch to unlock the car           |
 |`Bmw_ForceUpdate`              | Switch | switch to update the values immediately|
+
+#### Properties
+| OH-Item                       | Type   | Description                        |
+| ----------------------------- | ------ |------------------------------------|
 |`Bmw_accessToken`              | String | access token                       |
 |`Bmw_tokenExpires`             | String | Timestamp at which the accesstoken becomes invalid |
 |`Bmw_doorLockState`            | String | state of the door locks            |
 |`Bmw_socMax`                   | Number | maximum "state of charge" in kWh   |
 |`Bmw_chargingLevelHv`          | Number | charging level in percent          |
-|`Bmw_beRemainingRangeElectric` | Number | remaining electric range in km     |
-|`Bmw_beRemainingRangeFuel`     | Number | remaining fuel range in km         |
-|`Bmw_mileage`                  | Number | mileage                            |
+|`Bmw_beRemainingRangeElectric` | Number | remaining electric range in km or mls    |
+|`Bmw_beRemainingRangeFuel`     | Number | remaining fuel range in km or mls        |
+|`Bmw_mileage`                  | Number | mileage in km or mls                     |
 |`Bmw_chargingSystemStatus`     | String | charging state                     |
 |`Bmw_updateTimeConverted`      | String | last status update from the car    |
 |`Bmw_remainingFuel`            | Number | remaining fuel in l                |
