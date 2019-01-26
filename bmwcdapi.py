@@ -162,6 +162,8 @@ class ConnectedDrive(object):
                 self.ohPutValue("Bmw_lastChargingEndResult", map['lastChargingEndResult'])
             if('lastUpdateReason' in map):
                 self.ohPutValue("Bmw_lastUpdateReason", map['lastUpdateReason'])
+            if('unitOfLength' in map):
+                self.ohPutValue("Bmw_unitOfLength", map['unitOfLength'])
 
         else :
             execStatusCode = 70 #errno ECOMM, Communication error on send

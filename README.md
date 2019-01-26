@@ -2,9 +2,9 @@
 https://github.com/jupe76/bmwcdapi
 
 Bmwcdapi.py is a python script to query various informations about your car from the BMW ConnectedDrive portal 
-in conjunction with obenhab.
+in conjunction with openhab.
 
-I'm using it for a BMW i3, but should work with other types as well.
+I'm using it for a BMW i3, but should work with other models as well.
 
 The techniques to access the ConnectedDrive portal were taken from https://github.com/sergejmueller/battery.ebiene.de
 
@@ -21,7 +21,8 @@ Edit Bmw_Username, Bmw_Password and Bmw_Vin placed in bmw.items to hold your cre
 If your script dir is not /etc/openhab2/scripts than you need to edit bmw.rules.
 
 Copy bmwcdapi.py to the openhab script dir. If the script is running on another computer than your openhab installation, 
-than you need to adjust OPENHABIP.
+then you need to adjust OPENHABIP.
+If you're outside the EU you probably need to edit SERVER_URL.
 
 Edit your sitemap to visualize the items.
 
@@ -60,6 +61,9 @@ and the appropriate service, i.e. bmwcdapi.py --execservice climate
 |`Bmw_gpsLat`                   | String | GPS position latitude              | 
 |`Bmw_gpsLng`                   | String | GPS position longitude             |
 |`Bmw_gpsLatLng`                | String | GPS position latitude,longitude    |
+|`Bmw_lastChargingEndResult`    | String | Result of last charge              |
+|`Bmw_lastUpdateReason`         | String | Reason for last update             |
+|`Bmw_unitOfLength              | String | length unit, km or mls             |
 
 ### Commandline parameters
 If bmwcdapi.py is called without parameters, the current values will be queried from ConnectedDrive and propagated to openHAB.
