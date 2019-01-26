@@ -128,82 +128,77 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
-        execStatusCode = 0 #ok
         r = requests.get(VEHICLE_API+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
-        if (r.status_code== 200):
-            map=r.json() ['attributesMap']
-            #optional print all values
-            if(self.printall==True):
-                for k, v in map.items():
-                    print(k, v)
-            
-            if('door_lock_state' in map):
-                self.ohPutValue("Bmw_doorLockState",map['door_lock_state'])
-            if('chargingLevelHv' in map):
-                self.ohPutValue("Bmw_chargingLevelHv",map['chargingLevelHv'])
-            if('beRemainingRangeElectric' in map):
-                self.ohPutValue("Bmw_beRemainingRangeElectric",map["beRemainingRangeElectric"])
-            if('mileage' in map):
-                self.ohPutValue("Bmw_mileage",map["mileage"])
-            if('beRemainingRangeFuel' in map):
-                self.ohPutValue("Bmw_beRemainingRangeFuel",map["beRemainingRangeFuel"])
-            if('updateTime_converted_date' in map):
-                self.ohPutValue("Bmw_updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
-            if('chargingSystemStatus' in map):
-                self.ohPutValue("Bmw_chargingSystemStatus", map['chargingSystemStatus'])
-            if('remaining_fuel' in map):
-                self.ohPutValue("Bmw_remainingFuel", map['remaining_fuel'])
-            if(('gps_lat' in map) and ('gps_lng' in map)):
-                self.ohPutValue("Bmw_gpsLat", map['gps_lat'])
-                self.ohPutValue("Bmw_gpsLng", map['gps_lng'])
-                #maybe a combined value is more useful
-                self.ohPutValue("Bmw_gpsLatLng", (map['gps_lat']+ "," + map['gps_lng']))
-            if('lastChargingEndResult' in map):
-                self.ohPutValue("Bmw_lastChargingEndResult", map['lastChargingEndResult'])
-            if('lastUpdateReason' in map):
-                self.ohPutValue("Bmw_lastUpdateReason", map['lastUpdateReason'])
-            if('unitOfLength' in map):
-                self.ohPutValue("Bmw_unitOfLength", map['unitOfLength'])
+        if (r.status_code != 200):
+            return 70 #errno ECOMM, Communication error on send
 
-        else :
-            execStatusCode = 70 #errno ECOMM, Communication error on send
+        map=r.json() ['attributesMap']
+        #optional print all values
+        if(self.printall==True):
+            for k, v in map.items():
+                print(k, v)
+        
+        valueList = ['chargingLevelHv', 
+                    'beRemainingRangeElectric'
+                    'mileage',
+                    'beRemainingRangeFuel',
+                    'chargingSystemStatus',
+                    'lastChargingEndResult',
+                    'lastUpdateReason',
+                    'unitOfLength']
+        for val in valueList :
+            if(val in map):
+                self.ohPutValue("Bmw_"+ val,map[val])
+
+        #these items were named differently than in ConnectedDrive 
+        #so leave them for not breaking old configurations
+        if('door_lock_state' in map):
+            self.ohPutValue("Bmw_doorLockState",map['door_lock_state'])
+        if('updateTime_converted_date' in map):
+            self.ohPutValue("Bmw_updateTimeConverted", map['updateTime_converted_date']+ " " + map['updateTime_converted_time'])
+        if('remaining_fuel' in map):
+            self.ohPutValue("Bmw_remainingFuel", map['remaining_fuel'])
+        if(('gps_lat' in map) and ('gps_lng' in map)):
+            self.ohPutValue("Bmw_gpsLat", map['gps_lat'])
+            self.ohPutValue("Bmw_gpsLng", map['gps_lng'])
+            #maybe a combined value is more useful
+            self.ohPutValue("Bmw_gpsLatLng", (map['gps_lat']+ "," + map['gps_lng']))
 
         r = requests.get(VEHICLE_API+'/navigation/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
-        if (r.status_code== 200):
-            map=r.json()
+        if (r.status_code != 200):
+            return 70 #errno ECOMM, Communication error on send
 
-            #optional print all values
-            if(self.printall==True):
-                for k, v in map.items():
-                    print(k, v)
+        map=r.json()
+        #optional print all values
+        if(self.printall==True):
+            for k, v in map.items():
+                print(k, v)
 
-            if('socMax' in map):
-                self.ohPutValue("Bmw_socMax",map['socMax'])
-        else:
-            execStatusCode = 70 #errno ECOMM, Communication error on send
+        if('socMax' in map):
+            self.ohPutValue("Bmw_socMax",map['socMax'])
 
         r = requests.get(VEHICLE_API+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
-        if (r.status_code== 200):
-            if(self.printall==True):
-                for k, v in r.json().items():
-                    print(k, v)
+        if (r.status_code != 200):
+            return 70 #errno ECOMM, Communication error on send
+        if(self.printall==True):
+            for k, v in r.json().items():
+                print(k, v)
 
-            #lastTripList
-            myList=r.json() ["lastTripList"]
-            for listItem in myList:
-                if (listItem["name"] == "LASTTRIP_DELTA_KM"):
-                    pass
-                elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
-                    pass
-                elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
-                    self.ohPutValue("Bmw_lastTripAvgConsum", listItem["lastTrip"])
-                elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
-                    self.ohPutValue("Bmw_lastTripAvgRecup", listItem["lastTrip"])
-                elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
-                    pass
-        else: execStatusCode = 70 #errno ECOMM, Communication error on send
+        #lastTripList
+        myList=r.json() ["lastTripList"]
+        for listItem in myList:
+            if (listItem["name"] == "LASTTRIP_DELTA_KM"):
+                pass
+            elif (listItem["name"] == "ACTUAL_DISTANCE_WITHOUT_CHARGING"):
+                pass
+            elif (listItem["name"] == "AVERAGE_ELECTRIC_CONSUMPTION"):
+                self.ohPutValue("Bmw_lastTripAvgConsum", listItem["lastTrip"])
+            elif (listItem["name"] == "AVERAGE_RECUPERATED_ENERGY_PER_100_KM"):
+                self.ohPutValue("Bmw_lastTripAvgRecup", listItem["lastTrip"])
+            elif (listItem["name"] == "CUMULATED_ELECTRIC_DRIVEN_DISTANCE"):
+                pass
 
-        return execStatusCode
+        return 0 # ok
 
     def executeService(self,service):
         # lock doors:     RDL
@@ -234,33 +229,27 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
-        #initalize vars
-        execStatusCode=0
-        remoteServiceStatus=""
-
         r = requests.post(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/'+command, headers=headers,allow_redirects=True)
         if (r.status_code!= 200):
-            execStatusCode = 70 #errno ECOMM, Communication error on send
+            return 70 #errno ECOMM, Communication error on send
 
         #<remoteServiceStatus>DELIVERED_TO_VEHICLE</remoteServiceStatus>
         #<remoteServiceStatus>EXECUTED</remoteServiceStatus>
         #wait max. ((MAX_RETRIES +1) * INTERVAL) = 90 secs for execution 
-        if(execStatusCode==0):
-            for i in range(MAX_RETRIES):
-                time.sleep(INTERVAL)
-                r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
-                #print("status execstate " + str(r.status_code) + " " + r.text)
-                root = etree.fromstring(r.text)
-                remoteServiceStatus = root.find('remoteServiceStatus').text
-                #print(remoteServiceStatus)
-                if(remoteServiceStatus=='EXECUTED'):
-                    execStatusCode= 0 #OK
-                    break
+        for i in range(MAX_RETRIES):
+            time.sleep(INTERVAL)
+            r = requests.get(VEHICLE_API+'/remoteservices/v1/'+self.bmwVin+'/state/execution', headers=headers,allow_redirects=True)
+            #print("status execstate " + str(r.status_code) + " " + r.text)
+            root = etree.fromstring(r.text)
+            remoteServiceStatus = root.find('remoteServiceStatus').text
+            #print(remoteServiceStatus)
+            if(remoteServiceStatus=='EXECUTED'):
+                break
 
         if(remoteServiceStatus!='EXECUTED'):
-            execStatusCode = 62 #errno ETIME, Timer expired
+            return 62 #errno ETIME, Timer expired
 
-        return execStatusCode
+        return 0 # ok
 
     def sendMessage(self,message):
         # Endpoint: https://www.bmw-connecteddrive.de/api/vehicle/myinfo/v1
@@ -278,18 +267,15 @@ class ConnectedDrive(object):
             "Authorization" : "Bearer "+ self.accessToken
             }
 
-        #initalize vars
-        execStatusCode=0
-
         values = {'vins' : [self.bmwVin],
                     'message' : message[1],
                     'subject' : message[0]
                     }
         r = requests.post(VEHICLE_API+'/myinfo/v1', data=json.dumps(values), headers=headers,allow_redirects=True)
         if (r.status_code!= 200):
-            execStatusCode = 70 #errno ECOMM, Communication error on send
+            return 70 #errno ECOMM, Communication error on send
 
-        return execStatusCode
+        return 0
 
 def main():
     print("...running bmwcdapi.py")
