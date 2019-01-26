@@ -22,7 +22,6 @@ Edit Bmw_Region to set the region for ConnectedDrive access.
 If your script dir is not /etc/openhab2/scripts then you need to edit bmw.rules.
 
 Copy bmwcdapi.py to the openhab script dir. If the script is running on another computer than your openhab installation, then you need to adjust OPENHABIP.
-If you're outside the EU you probably need to edit SERVER_URL.
 
 Edit your sitemap to visualize the items.
 
