@@ -158,6 +158,11 @@ class ConnectedDrive(object):
                 self.ohPutValue("Bmw_gpsLng", map['gps_lng'])
                 #maybe a combined value is more useful
                 self.ohPutValue("Bmw_gpsLatLng", (map['gps_lat']+ "," + map['gps_lng']))
+            if('lastChargingEndResult' in map):
+                self.ohPutValue("Bmw_lastChargingEndResult", map['lastChargingEndResult'])
+            if('lastUpdateReason' in map):
+                self.ohPutValue("Bmw_lastUpdateReason", map['lastUpdateReason'])
+
         else :
             execStatusCode = 70 #errno ECOMM, Communication error on send
 

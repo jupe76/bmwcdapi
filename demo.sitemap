@@ -20,6 +20,8 @@ sitemap demo label="Main Menu"
                 Text item=Bmw_gpsLat
                 Text item=Bmw_gpsLng
                 Text item=Bmw_gpsLatLng
+                Text item=Bmw_lastChargingEndResult
+                Text item=Bmw_lastUpdateReason
             }
         }
 }
