@@ -98,9 +98,10 @@ class ConnectedDrive(object):
         data = urllib.parse.urlencode(values)
         url = AUTH_API.format(server=SERVER_URL)
         r = requests.post(url, data=data, headers=headers,allow_redirects=False)
+        if (r.status_code != 200):
+            self.authenticated = False
+            return
         myPayLoad=r.json()
-        #if("error=access_denied" in myPayLoad):
-        #self.authenticated = False
 
         self.accessToken=myPayLoad['access_token']
         self.ohPutValue('Bmw_accessToken',self.accessToken)
