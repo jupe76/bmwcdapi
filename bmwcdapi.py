@@ -152,7 +152,7 @@ class ConnectedDrive(object):
                 print(k, v)
         
         valueList = ['chargingLevelHv', 
-                    'beRemainingRangeElectric'
+                    'beRemainingRangeElectric',
                     'mileage',
                     'beRemainingRangeFuel',
                     'chargingSystemStatus',
