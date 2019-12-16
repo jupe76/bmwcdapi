@@ -187,8 +187,8 @@ class ConnectedDrive(object):
             for k, v in map.items():
                 print(k, v)
 
-        if('socMax' in map):
-            self.ohPutValue("Bmw_socMax",map['socMax'])
+        if('socmax' in map):
+            self.ohPutValue("Bmw_socMax",map['socmax'])
 
         r = requests.get(self.vehicleApi+'/efficiency/v1/'+self.bmwVin, headers=headers,allow_redirects=True)
         if (r.status_code != 200):
