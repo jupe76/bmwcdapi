@@ -54,8 +54,9 @@ class ConnectedDrive(object):
             #fallback for nonexisting region 
             self.serverUrl = servers['1']
 
-        self.authApi = 'https://' + self.serverUrl +'/gcdm/oauth/token'
+        self.authApi = 'https://customer.bmwgroup.com/{gcdm_oauth_endpoint}/authenticate'
         self.vehicleApi = 'https://'+ self.serverUrl + '/api/vehicle'
+        self.get_gcdm_oauth_endpoint = 'gcdm/oauth'
 
         self.printall = False
         self.bmwUsername = self.ohGetValue("Bmw_Username").json()["label"]
@@ -98,24 +99,27 @@ class ConnectedDrive(object):
         }
 
         values = {
-            'grant_type': 'password',
-            'scope': 'authenticate_user vehicle_data remote_services',
-            'username': self.bmwUsername,
-            'password': self.bmwPassword,
+                'client_id': 'dbf0a542-ebd1-4ff0-a9a7-55172fbfce35',
+                'response_type': 'token',
+                'redirect_uri': 'https://www.bmw-connecteddrive.com/app/static/external-dispatch.html',
+                'scope': 'authenticate_user vehicle_data remote_services',
+                'username': self.bmwUsername,
+                'password': self.bmwPassword
         }
-
         data = urllib.parse.urlencode(values)
-        url = self.authApi.format(server=self.serverUrl)
+        url = self.authApi.format(gcdm_oauth_endpoint=self.get_gcdm_oauth_endpoint)
         r = requests.post(url, data=data, headers=headers,allow_redirects=False)
-        if (r.status_code != 200):
+        if (r.status_code != 302):
             self.authenticated = False
             return
-        myPayLoad=r.json()
+        myPayLoad=dict(
+                    urllib.parse.parse_qsl(urllib.parse.urlparse(r.headers['Location']).fragment)
+                    )
 
         self.accessToken=myPayLoad['access_token']
         self.ohPutValue('Bmw_accessToken',self.accessToken)
-
-        expirationSecs=myPayLoad['expires_in']
+        
+        expirationSecs=int(myPayLoad['expires_in'])
         self.tokenExpires = datetime.datetime.now() + datetime.timedelta(seconds=expirationSecs)
         self.ohPutValue('Bmw_tokenExpires',self.tokenExpires)
 
@@ -142,6 +146,7 @@ class ConnectedDrive(object):
             }
 
         r = requests.get(self.vehicleApi+'/dynamic/v1/'+self.bmwVin+'?offset=-60', headers=headers,allow_redirects=True)
+        print(r.status_code)
         if (r.status_code != 200):
             return 70 #errno ECOMM, Communication error on send
 
@@ -324,7 +329,7 @@ def main():
         #errno EACCES 13 Permission denied
         execStatusCode = 13
         
-    #print("execStatusCode="+ str(execStatusCode) )
+    print("execStatusCode="+ str(execStatusCode) )
     return execStatusCode
 
 if __name__ == '__main__':
