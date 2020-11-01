@@ -90,12 +90,12 @@ class ConnectedDrive(object):
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Content-Length": "124",
                 "Connection": "Keep-Alive",
-                "Host": self.serverUrl,
+                "Host": "customer.bmwgroup.com",
                 "Accept-Encoding": "gzip",
-                "Authorization": "Basic blF2NkNxdHhKdVhXUDc0eGYzQ0p3VUVQOjF6REh4NnVuNGNEanli"
-                                 "TEVOTjNreWZ1bVgya0VZaWdXUGNRcGR2RFJwSUJrN3JPSg==",
+                "Authorization": "Basic ZDc2NmI1MzctYTY1NC00Y2JkLWEzZGMtMGNhNTY3MmQ3ZjhkOjE1"
+                                 "ZjY5N2Y2LWE1ZDUtNGNhZC05OWQ5LTNhMTViYzdmMzk3Mw==",
                 "Credentials": "nQv6CqtxJuXWP74xf3CJwUEP:1zDHx6un4cDjybLENN3kyfumX2kEYigWPcQpdvDRpIBk7rOJ",
-                "User-Agent": "okhttp/2.60",
+                "User-Agent": "okhttp/3.12.2",
         }
 
         values = {
